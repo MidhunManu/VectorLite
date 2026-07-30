@@ -1,0 +1,129 @@
+# VecLite
+
+> A SQLite-inspired embedded vector database engine written in C.
+
+VecLite is a lightweight, high-performance embedded vector database designed for local AI applications, edge devices, and systems that require fast vector storage and similarity search without running a separate database server.
+
+The idea behind VecLite is simple:
+
+```
+SQLite for vector data.
+```
+
+Instead of deploying a distributed database service, VecLite runs directly inside your application as a native C library with a local database file.
+
+```
++----------------------+
+|     Application      |
++----------+-----------+
+           |
+           v
++----------------------+
+|       VecLite        |
+|  Embedded C Engine   |
++----------+-----------+
+           |
+           v
++----------------------+
+|   Local Vector DB    |
+|        File          |
++----------------------+
+```
+
+## Why VecLite?
+
+Modern AI applications generate large amounts of vector data:
+
+- AI embeddings
+- Semantic search indexes
+- Retrieval-Augmented Generation (RAG) memory
+- Recommendation systems
+- Local AI assistants
+
+Most vector databases are designed as network services.
+
+VecLite focuses on a different approach:
+
+```
+Small
+Fast
+Embedded
+Local
+```
+
+No external server.
+No network dependency.
+No complex deployment.
+
+---
+
+# Linux Native Design
+
+VecLite is built specifically with Linux systems programming principles.
+
+It uses native Linux APIs and concepts to achieve high performance:
+
+- epoll-based event processing for future networking support
+- mmap for efficient memory-mapped storage
+- POSIX file APIs
+- pthread-based concurrency
+- low-level memory management
+- direct filesystem interaction
+- zero-copy techniques where possible
+
+The goal is to build a database engine that feels native to Linux:
+
+```
+Application
+      |
+      |
+      v
++-------------+
+|   VecLite   |
++-------------+
+      |
+      |
+      v
+Linux Kernel APIs
+
+- mmap()
+- epoll()
+- pthreads
+- file descriptors
+- filesystem APIs
+```
+
+---
+
+# Core Philosophy
+
+VecLite follows the same philosophy that made SQLite successful:
+
+```
+Small footprint
+        +
+Simple API
+        +
+Reliable storage
+        +
+High performance
+```
+
+The first goal is not to build the biggest database.
+
+The goal is:
+
+```
+A fast, reliable embedded vector engine
+that can run anywhere.
+```
+
+---
+
+# Vision
+
+VecLite aims to become:
+
+> The SQLite of vector databases.
+
+A minimal, Linux-native vector database engine written in C for developers building the next generation of AI applications.
