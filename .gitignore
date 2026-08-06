@@ -53,3 +53,5 @@ cmake-build-*/
 *.swp
 *.swo
 .netrwhist
+database
+roadmap.md

@@ -4,7 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB SRC_FILES CONFIGURE_DEPENDS
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
     "src/*.cpp"
 )
 
@@ -13,4 +13,4 @@ add_executable(vbde
     ${SRC_FILES}
 )
 
-target_include_directories(vbde PRIVATE include)
+target_include_directories(vbde PRIVATE include src)

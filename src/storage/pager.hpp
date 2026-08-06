@@ -19,7 +19,7 @@ namespace vectordb
 			uint32_t page_id,
 			std::vector<char> &data);
 
-		std::vector<char> &read_page(
+		std::vector<char> read_page(
 			uint32_t page_id);
 
 	private:

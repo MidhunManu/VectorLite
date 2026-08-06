@@ -27,9 +27,11 @@ namespace vectordb
         }
     }
 
-    std::vector<char>& Pager::read_page(uint32_t page_id)
+    std::vector<char> Pager::read_page(uint32_t page_id)
     {
         std::vector<char> buffer(PAGE_SIZE);
+
+        m_file.seekg(page_id * PAGE_SIZE);
         m_file.read(buffer.data(), buffer.size());
 
         return buffer;
@@ -38,7 +40,7 @@ namespace vectordb
     void Pager::write_page(uint32_t page_id, std::vector<char>& data)
     {
         m_file.seekp(
-            page_id* PAGE_SIZE
+            page_id * PAGE_SIZE
         );
 
         m_file.write(
