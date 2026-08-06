@@ -1,5 +1,5 @@
 #include "pager.hpp"
-#include "stdexcept"
+#include <stdexcept>
 #include "vectordb/config.hpp"
 
 namespace vectordb
