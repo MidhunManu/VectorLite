@@ -1,4 +1,4 @@
-# VecLite
+# LatticDB
 
 > A SQLite-inspired embedded vector database engine written in C++.
 
