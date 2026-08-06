@@ -1,6 +1,6 @@
 # VecLite
 
-> A SQLite-inspired embedded vector database engine written in C.
+> A SQLite-inspired embedded vector database engine written in C++.
 
 VecLite is a lightweight, high-performance embedded vector database designed for local AI applications, edge devices, and systems that require fast vector storage and similarity search without running a separate database server.
 
@@ -126,4 +126,4 @@ VecLite aims to become:
 
 > The SQLite of vector databases.
 
-A minimal, Linux-native vector database engine written in C for developers building the next generation of AI applications.
+A minimal, Linux-native vector database engine written in C++ for developers building the next generation of AI applications.
