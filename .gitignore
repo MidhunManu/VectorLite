@@ -1,4 +1,55 @@
-ARCHITECTURE.md
-.vs_code
-.DS_STORE
-build
+# ==========================================
+# Compiled Binaries & Libraries
+# ==========================================
+*.out
+*.exe
+*.app
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+
+# ==========================================
+# CMake & Build Artifacts
+# ==========================================
+# Blocks the entire build directory (including your compile_commands.json)
+build/
+.cache/
+
+# Ignore local symlinks to build assets (like the Neovim clangd symlink)
+compile_commands.json
+
+# ==========================================
+# OS Specific Junk Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# ==========================================
+# IDEs & Editor Configuration
+# ==========================================
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# CLion / JetBrains
+.idea/
+cmake-build-*/
+
+# Neovim / Vim swap files
+*.swp
+*.swo
+.netrwhist
