@@ -1,129 +1,315 @@
-# VecLite
+# LatticeDB — Embedded Vector Database
 
-> A SQLite-inspired embedded vector database engine written in C++.
+## Overview
 
-VecLite is a lightweight, high-performance embedded vector database designed for local AI applications, edge devices, and systems that require fast vector storage and similarity search without running a separate database server.
+LatticeDB is an embedded vector database designed to run inside an application process without requiring a separate database server.
 
-The idea behind VecLite is simple:
-
-```
-SQLite for vector data.
-```
-
-Instead of deploying a distributed database service, VecLite runs directly inside your application as a native C library with a local database file.
-
-```
-+----------------------+
-|     Application      |
-+----------+-----------+
-           |
-           v
-+----------------------+
-|       VecLite        |
-|  Embedded C Engine   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-|   Local Vector DB    |
-|        File          |
-+----------------------+
-```
-
-## Why VecLite?
-
-Modern AI applications generate large amounts of vector data:
-
-- AI embeddings
-- Semantic search indexes
-- Retrieval-Augmented Generation (RAG) memory
-- Recommendation systems
-- Local AI assistants
-
-Most vector databases are designed as network services.
-
-VecLite focuses on a different approach:
-
-```
-Small
-Fast
-Embedded
-Local
-```
-
-No external server.
-No network dependency.
-No complex deployment.
-
----
-
-# Linux Native Design
-
-VecLite is built specifically with Linux systems programming principles.
-
-It uses native Linux APIs and concepts to achieve high performance:
-
-- epoll-based event processing for future networking support
-- mmap for efficient memory-mapped storage
-- POSIX file APIs
-- pthread-based concurrency
-- low-level memory management
-- direct filesystem interaction
-- zero-copy techniques where possible
-
-The goal is to build a database engine that feels native to Linux:
+The application links against the LatticeDB library, and all database operations happen through the library.
 
 ```
 Application
-      |
-      |
-      v
-+-------------+
-|   VecLite   |
-+-------------+
-      |
-      |
-      v
-Linux Kernel APIs
+     |
+     v
+LatticeDB Library
+     |
+     v
+Database File (.vdb)
+     |
+     +---- WAL (.wal)
+```
 
-- mmap()
-- epoll()
-- pthreads
-- file descriptors
-- filesystem APIs
+The goal is to provide a lightweight, embeddable storage engine for vector search workloads.
+
+---
+
+## Core Design Principles
+
+### Embedded First
+
+- No database server.
+- No network layer.
+- The database exists as a file managed by the application process.
+
+### Correctness Over Optimization
+
+The MVP prioritizes:
+
+- Simple storage model
+- Reliable persistence
+- Crash recovery
+- Clear component boundaries
+
+Advanced features like HNSW, distributed execution, and query optimization come later.
+
+### Replaceable Components
+
+Major subsystems communicate through interfaces:
+
+- Storage Engine
+- Index Engine
+- Query Executor
+- WAL
+
+Future improvements should replace implementations, not redesign the architecture.
+
+---
+
+## High Level Architecture
+
+```
+                 Application
+                      |
+                      v
+              Public API Layer
+                      |
+                      v
+              Query Processing
+                      |
+          +-----------+-----------+
+          |                       |
+          v                       v
+      Planner                 Executor
+                                  |
+                                  v
+                         Storage Engine
+                                  |
+              +-------------------+----------------+
+              |                                    |
+              v                                    v
+        Database File                         WAL File
 ```
 
 ---
 
-# Core Philosophy
+## Components
 
-VecLite follows the same philosophy that made SQLite successful:
+### API Layer
+
+Responsible for the public interface exposed to applications.
+
+Responsibilities:
+
+- Open/close database
+- Create connections
+- Execute queries
+- Manage transactions
+
+### Query Engine
+
+Responsible for converting user queries into executable operations.
+
+Pipeline:
 
 ```
-Small footprint
-        +
-Simple API
-        +
-Reliable storage
-        +
-High performance
+Query
+ |
+ v
+Lexer
+ |
+ v
+Parser
+ |
+ v
+Semantic Analysis
+ |
+ v
+Planner
+ |
+ v
+Executor
 ```
 
-The first goal is not to build the biggest database.
+### Execution Engine
 
-The goal is:
+Executes physical operations.
+
+Examples:
+
+- Insert
+- Delete
+- Update
+- Collection scan
+- Vector search
+- Filtering
+
+Uses an operator-based execution model.
+
+### Storage Engine
+
+Responsible for persistence.
+
+Responsibilities:
+
+- Page management
+- Record storage
+- Buffer management
+- File operations
+
+The executor never directly accesses disk.
+
+### WAL (Write Ahead Log)
+
+Provides crash safety.
+
+Write flow:
 
 ```
-A fast, reliable embedded vector engine
-that can run anywhere.
+Transaction
+      |
+      v
+Write WAL
+      |
+      v
+Flush WAL
+      |
+      v
+Update Database File
+```
+
+If the process crashes, WAL is used for recovery.
+
+### Index Engine
+
+Provides search structures.
+
+**MVP:**
+
+```
+Flat Vector Index
+```
+
+**Future:**
+
+```
+HNSW
+IVF
+Other ANN indexes
+```
+
+Indexes are isolated behind an interface so they can be replaced.
+
+---
+
+## Storage Model
+
+The database is stored as pages.
+
+```
+Database File
+
++----------------+
+| Header Page    |
++----------------+
+| Catalog Pages  |
++----------------+
+| Data Pages     |
++----------------+
+```
+
+Each page has a fixed size.
+
+Example:
+
+```
+4096 bytes/page
+```
+
+Pages are the basic unit of disk I/O.
+
+---
+
+## Database Lifecycle
+
+### Open
+
+```
+vdb_open()
+    |
+    v
+Open database file
+    |
+    v
+Validate header
+    |
+    v
+Recover WAL if required
+    |
+    v
+Load metadata
+    |
+    v
+Ready
+```
+
+### Close
+
+```
+vdb_close()
+    |
+    v
+Flush changes
+    |
+    v
+Checkpoint WAL
+    |
+    v
+Close file
 ```
 
 ---
 
-# Vision
+## MVP Scope
 
-VecLite aims to become:
+The first version supports:
 
-> The SQLite of vector databases.
+- Embedded database file
+- Collections
+- Vector storage
+- Metadata storage
+- Basic queries
+- Flat vector search
+- WAL durability
+- Crash recovery
 
-A minimal, Linux-native vector database engine written in C++ for developers building the next generation of AI applications.
+---
+
+## Future Extensions
+
+Designed extension points:
+
+| Feature | Component |
+|---|---|
+| HNSW / IVF | Index Engine |
+| Query Optimizer | Planner |
+| MVCC | Storage + Transaction Layer |
+| Compression | Storage Engine |
+| Distributed Mode | API Layer |
+
+---
+
+## Repository Structure
+
+```
+latticedb/
+
+src/
+ ├── api/
+ ├── query/
+ ├── exec/
+ ├── storage/
+ ├── wal/
+ ├── catalog/
+ ├── index/
+ ├── vector/
+ └── memory/
+
+tests/
+bench/
+docs/
+```
+
+---
+
+## Mission
+
+Build a small, correct, embeddable vector database where the first version is simple enough to understand completely and strong enough to evolve into a production system.
