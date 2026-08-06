@@ -2,15 +2,15 @@
 
 ## Overview
 
-VectorDB is an embedded vector database designed to run inside an application process without requiring a separate database server.
+LatticeDB is an embedded vector database designed to run inside an application process without requiring a separate database server.
 
-The application links against the VectorDB library, and all database operations happen through the library.
+The application links against the LatticeDB library, and all database operations happen through the library.
 
 ```
 Application
      |
      v
-VectorDB Library
+LatticeDB Library
      |
      v
 Database File (.vdb)
@@ -22,17 +22,15 @@ The goal is to provide a lightweight, embeddable storage engine for vector searc
 
 ---
 
-# Core Design Principles
+## Core Design Principles
 
-## Embedded First
+### Embedded First
 
-No database server.
+- No database server.
+- No network layer.
+- The database exists as a file managed by the application process.
 
-No network layer.
-
-The database exists as a file managed by the application process.
-
-## Correctness Over Optimization
+### Correctness Over Optimization
 
 The MVP prioritizes:
 
@@ -43,7 +41,7 @@ The MVP prioritizes:
 
 Advanced features like HNSW, distributed execution, and query optimization come later.
 
-## Replaceable Components
+### Replaceable Components
 
 Major subsystems communicate through interfaces:
 
@@ -56,7 +54,7 @@ Future improvements should replace implementations, not redesign the architectur
 
 ---
 
-# High Level Architecture
+## High Level Architecture
 
 ```
                  Application
@@ -83,9 +81,9 @@ Future improvements should replace implementations, not redesign the architectur
 
 ---
 
-# Components
+## Components
 
-## API Layer
+### API Layer
 
 Responsible for the public interface exposed to applications.
 
@@ -96,9 +94,7 @@ Responsibilities:
 - Execute queries
 - Manage transactions
 
----
-
-## Query Engine
+### Query Engine
 
 Responsible for converting user queries into executable operations.
 
@@ -123,9 +119,7 @@ Planner
 Executor
 ```
 
----
-
-## Execution Engine
+### Execution Engine
 
 Executes physical operations.
 
@@ -140,9 +134,7 @@ Examples:
 
 Uses an operator-based execution model.
 
----
-
-## Storage Engine
+### Storage Engine
 
 Responsible for persistence.
 
@@ -155,9 +147,7 @@ Responsibilities:
 
 The executor never directly accesses disk.
 
----
-
-## WAL (Write Ahead Log)
+### WAL (Write Ahead Log)
 
 Provides crash safety.
 
@@ -178,19 +168,17 @@ Update Database File
 
 If the process crashes, WAL is used for recovery.
 
----
-
-## Index Engine
+### Index Engine
 
 Provides search structures.
 
-MVP:
+**MVP:**
 
 ```
 Flat Vector Index
 ```
 
-Future:
+**Future:**
 
 ```
 HNSW
@@ -202,7 +190,7 @@ Indexes are isolated behind an interface so they can be replaced.
 
 ---
 
-# Storage Model
+## Storage Model
 
 The database is stored as pages.
 
@@ -230,63 +218,47 @@ Pages are the basic unit of disk I/O.
 
 ---
 
-# Database Lifecycle
+## Database Lifecycle
 
-## Open
+### Open
 
 ```
 vdb_open()
-
     |
     v
-
 Open database file
-
     |
     v
-
 Validate header
-
     |
     v
-
 Recover WAL if required
-
     |
     v
-
 Load metadata
-
     |
     v
-
 Ready
 ```
 
-## Close
+### Close
 
 ```
 vdb_close()
-
     |
     v
-
 Flush changes
-
     |
     v
-
 Checkpoint WAL
-
     |
     v
-
 Close file
 ```
 
 ---
 
-# MVP Scope
+## MVP Scope
 
 The first version supports:
 
@@ -301,12 +273,12 @@ The first version supports:
 
 ---
 
-# Future Extensions
+## Future Extensions
 
 Designed extension points:
 
 | Feature | Component |
-|-|-|
+|---|---|
 | HNSW / IVF | Index Engine |
 | Query Optimizer | Planner |
 | MVCC | Storage + Transaction Layer |
@@ -315,10 +287,10 @@ Designed extension points:
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```
-vectordb/
+latticedb/
 
 src/
  ├── api/
@@ -338,6 +310,6 @@ docs/
 
 ---
 
-# Mission
+## Mission
 
 Build a small, correct, embeddable vector database where the first version is simple enough to understand completely and strong enough to evolve into a production system.
