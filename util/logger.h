@@ -2,15 +2,18 @@
 #include <iostream>
 
 
-class LOG {
+class LOG
+{
 public:
     enum class LOG_LEVEL { DEF, LOW, MID, HIGH, SYS };
 
 private:
     std::string message;
 
-    std::string_view level_to_string(LOG_LEVEL level) {
-        switch (level) {
+    std::string_view level_to_string(LOG_LEVEL level)
+    {
+        switch (level)
+        {
             case LOG_LEVEL::DEF:  return "DEF";
             case LOG_LEVEL::LOW:  return "LOW";
             case LOG_LEVEL::MID:  return "MID";
@@ -21,12 +24,14 @@ private:
     }
 
 public:
-    LOG() {
+    LOG()
+    {
         std::cout << "LOGGER: Initialized.\n";
     }
 
     template <typename... Args>
-    void log(LOG_LEVEL level, std::format_string<Args...> fmt, Args&&... args) {
+    void log(LOG_LEVEL level, std::format_string<Args...> fmt, Args&&... args)
+    {
         message = std::format(fmt, std::forward<Args>(args)...);
         std::cout << std::format("[{}] {}\n", level_to_string(level), message);
     }
