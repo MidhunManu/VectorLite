@@ -6,6 +6,7 @@
 #include <fstream>
 #include <stdexcept>
 
+
 namespace vectordb
 {
     Database::Database(std::unique_ptr<Pager> pager, FileHeader header)
