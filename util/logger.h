@@ -1,6 +1,5 @@
-#include "../stdx.h"
 #include <format>
-
+#include <iostream>
 
 
 class LOG {
