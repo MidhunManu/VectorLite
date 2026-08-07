@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "include/vectordb/database.hpp"
+#include "../include/vectordb/database.hpp"
 
 int main(int argc, char const *argv[])
 {
