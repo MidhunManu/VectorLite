@@ -19,7 +19,7 @@ Database File (.vdb)
 ```
 
 The goal is to provide a lightweight, embeddable storage engine for vector search workloads.
-
+......
 ---
 
 ## Core Design Principles
