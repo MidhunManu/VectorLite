@@ -15,10 +15,10 @@ namespace vectordb
 
     private:
         char magic[4];
-        uint32_t version;
-        uint32_t page_size;
-        uint64_t page_count;
-        uint64_t catalog_root;
-        uint8_t clean_shutdown;
+        uint32_t m_version;
+        uint32_t m_page_size;
+        uint64_t m_page_count;
+        uint64_t m_catalog_root;
+        uint8_t m_clean_shutdown;
     };
 }

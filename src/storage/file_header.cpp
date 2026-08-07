@@ -9,11 +9,11 @@ namespace vectordb
     {
         FileHeader header{};
         std::memcpy(header.magic, DATABASE_MAGIC, 4);
-        header.version = DATABASE_VERSION;
-        header.page_size = PAGE_SIZE;
-        header.page_count = 1;
-        header.catalog_root = 0;
-        header.clean_shutdown = 1;
+        header.m_version = DATABASE_VERSION;
+        header.m_page_size = PAGE_SIZE;
+        header.m_page_count = 1;
+        header.m_catalog_root = 0;
+        header.m_clean_shutdown = 1;
 
         return header;
     }
@@ -26,20 +26,20 @@ namespace vectordb
         std::memcpy(buffer.data() + offset, magic, sizeof(magic));
         offset += sizeof(magic);
 
-        std::memcpy(buffer.data() + offset, &version, sizeof(version));
-        offset += sizeof(version);
+        std::memcpy(buffer.data() + offset, &m_version, sizeof(m_version));
+        offset += sizeof(m_version);
 
-        std::memcpy(buffer.data() + offset, &page_size, sizeof(page_size));
-        offset += sizeof(page_size);
+        std::memcpy(buffer.data() + offset, &m_page_size, sizeof(m_page_size));
+        offset += sizeof(m_page_size);
 
-        std::memcpy(buffer.data() + offset, &page_count, sizeof(page_count));
-        offset += sizeof(page_count);
+        std::memcpy(buffer.data() + offset, &m_page_count, sizeof(m_page_count));
+        offset += sizeof(m_page_count);
 
-        std::memcpy(buffer.data() + offset, &catalog_root, sizeof(catalog_root));
-        offset += sizeof(catalog_root);
+        std::memcpy(buffer.data() + offset, &m_catalog_root, sizeof(m_catalog_root));
+        offset += sizeof(m_catalog_root);
 
-        std::memcpy(buffer.data() + offset, &clean_shutdown, sizeof(clean_shutdown));
-        offset += sizeof(clean_shutdown);
+        std::memcpy(buffer.data() + offset, &m_clean_shutdown, sizeof(m_clean_shutdown));
+        offset += sizeof(m_clean_shutdown);
 
         return buffer;
     }
@@ -63,20 +63,20 @@ namespace vectordb
         std::memcpy(header.magic, buffer.data() + offset, sizeof(header.magic));
         offset += sizeof(header.magic);
 
-        std::memcpy(&header.version, buffer.data() + offset, sizeof(header.version));
-        offset += sizeof(header.version);
+        std::memcpy(&header.m_version, buffer.data() + offset, sizeof(header.m_version));
+        offset += sizeof(header.m_version);
 
-        std::memcpy(&header.page_size, buffer.data() + offset, sizeof(header.page_size));
-        offset += sizeof(header.page_size);
+        std::memcpy(&header.m_page_size, buffer.data() + offset, sizeof(header.m_page_size));
+        offset += sizeof(header.m_page_size);
 
-        std::memcpy(&header.page_count, buffer.data() + offset, sizeof(header.page_count));
-        offset += sizeof(header.page_count);
+        std::memcpy(&header.m_page_count, buffer.data() + offset, sizeof(header.m_page_count));
+        offset += sizeof(header.m_page_count);
 
-        std::memcpy(&header.catalog_root, buffer.data() + offset, sizeof(header.catalog_root));
-        offset += sizeof(header.catalog_root);
+        std::memcpy(&header.m_catalog_root, buffer.data() + offset, sizeof(header.m_catalog_root));
+        offset += sizeof(header.m_catalog_root);
 
-        std::memcpy(&header.clean_shutdown, buffer.data() + offset, sizeof(header.clean_shutdown));
-        offset += sizeof(header.clean_shutdown);
+        std::memcpy(&header.m_clean_shutdown, buffer.data() + offset, sizeof(header.m_clean_shutdown));
+        offset += sizeof(header.m_clean_shutdown);
 
         return header;
     }
@@ -88,12 +88,12 @@ namespace vectordb
             return false;
         }
 
-        if (version != DATABASE_VERSION)
+        if (m_version != DATABASE_VERSION)
         {
             return false;
         }
 
-        if (page_size != PAGE_SIZE)
+        if (m_page_size != PAGE_SIZE)
         {
             return false;
         }
