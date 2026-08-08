@@ -12,7 +12,7 @@ namespace vectordb
 		Float64 = 3,
 		String 	= 4,
 		Bool 	= 5,
-		Vector 	= 6	
+		Vector 	= 6
 	};
 
 	struct ColumnRef
