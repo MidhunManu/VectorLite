@@ -2,11 +2,11 @@
 
 #include <memory>
 #include <string>
-#include "../src/storage/file_header.hpp"
 
 namespace vectordb
 {
     class Pager;
+    class DatabaseImpl;
 
     class Database
     {
@@ -19,8 +19,7 @@ namespace vectordb
             void close();
 
         private:
-            Database(std::unique_ptr<Pager> pager, FileHeader header);
-            std::unique_ptr<Pager> m_pager;
-            FileHeader m_header;
+            explicit Database(std::unique_ptr<DatabaseImpl> impl);
+            std::unique_ptr<DatabaseImpl> m_impl;
     };
 }

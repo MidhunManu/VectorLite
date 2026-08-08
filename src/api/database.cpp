@@ -4,12 +4,21 @@
 
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace vectordb
 {
-    Database::Database(std::unique_ptr<Pager> pager, FileHeader header)
-        : m_pager(std::move(pager)), m_header(header)
+    class DatabaseImpl
+    {
+        public:
+            std::unique_ptr<Pager> pager;
+            FileHeader header;
+    };
+
+    Database::Database(std::unique_ptr<DatabaseImpl> impl)
+        : m_impl(std::move(impl))
     {
     }
 
@@ -30,32 +39,33 @@ namespace vectordb
             }
         }
 
-        auto pager = std::make_unique<Pager>(path);
+        auto impl = std::make_unique<DatabaseImpl>();
+        impl->pager = std::make_unique<Pager>(path);
 
         FileHeader header;
 
         if (!exists)
         {
-            header = FileHeader::create();
-            auto buffer = header.serialise();
-            pager->write_page(0, buffer);
+            impl->header = FileHeader::create();
+            auto buffer = impl->header.serialise();
+            impl->pager->write_page(0, buffer);
         }
         else
         {
-            auto buffer = pager->read_page(0);
-            header = FileHeader::deserialise(buffer);
+            auto buffer = impl->pager->read_page(0);
+            impl->header = FileHeader::deserialise(buffer);
 
-            if (!header.valid())
+            if (!impl->header.valid())
             {
                 throw std::runtime_error("corrupt or incompatible database file: " + path);
             }
         }
 
-        return Database(std::move(pager), header);
+        return Database(std::move(impl));
     }
 
     void Database::close()
     {
-        m_pager.reset();
+        m_impl.reset();
     }
 }
