@@ -16,6 +16,7 @@ add_library(vectordb
     src/api/database.cpp
     src/storage/file_header.cpp
     src/storage/pager.cpp
+    src/catalog/catalog.cpp
 )
 
 add_library(vectordb::vectordb ALIAS vectordb)
@@ -61,6 +62,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(database_tests
     tests/database_open_test.cpp
+    tests/file_header_test.cpp
 )
 
 target_link_libraries(database_tests

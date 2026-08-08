@@ -1,12 +1,16 @@
 #include "vectordb/database.hpp"
 #include "../storage/pager.hpp"
 #include "../src/storage/file_header.hpp"
+#include "../src/catalog/collection_descriptor.hpp"
+#include "catalog/catalog.hpp"
+#include "../src/catalog/schema.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 namespace vectordb
 {
@@ -15,6 +19,7 @@ namespace vectordb
         public:
             std::unique_ptr<Pager> pager;
             FileHeader header;
+            Catalog catalog;
     };
 
     Database::Database(std::unique_ptr<DatabaseImpl> impl)
@@ -47,8 +52,14 @@ namespace vectordb
         if (!exists)
         {
             impl->header = FileHeader::create();
-            auto buffer = impl->header.serialise();
-            impl->pager->write_page(0, buffer);
+            impl->header.set_catalog_root(1);
+            impl->header.set_page_count(2);
+
+            auto header_buffer = impl->header.serialise();
+            impl->pager->write_page(0, header_buffer);
+
+            auto catalog_buffer = impl->catalog.serialise(); // empty catalog
+            impl->pager->write_page(impl->header.catalog_root(), catalog_buffer);
         }
         else
         {
@@ -59,6 +70,9 @@ namespace vectordb
             {
                 throw std::runtime_error("corrupt or incompatible database file: " + path);
             }
+
+            auto catalog_buffer = impl->pager->read_page(impl->header.catalog_root());
+            impl->catalog = Catalog::deserialise(catalog_buffer);
         }
 
         return Database(std::move(impl));
@@ -67,5 +81,29 @@ namespace vectordb
     void Database::close()
     {
         m_impl.reset();
+    }
+
+    const CollectionDescriptor& Database::create_collection(
+        const std::string& name,
+        std::vector<ColumnRef> schema
+    )
+    {
+        const CollectionDescriptor& descriptor = m_impl->catalog.create_collection(name, std::move(schema));
+
+        persist_catalog();
+
+        return descriptor;
+    }
+
+    const CollectionDescriptor* Database::find_collection(const std::string& name) const
+    {
+        return m_impl->catalog.find_collection(name);
+    }
+
+
+    void Database::persist_catalog()
+    {
+        auto buffer = m_impl->catalog.serialise();
+        m_impl->pager->write_page(m_impl->header.catalog_root(), buffer);
     }
 }
