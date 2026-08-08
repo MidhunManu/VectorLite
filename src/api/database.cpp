@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
+
 namespace vectordb
 {
     class DatabaseImpl
