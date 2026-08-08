@@ -40,7 +40,7 @@ namespace vectordb
         }
 
         auto impl = std::make_unique<DatabaseImpl>();
-        auto pager = std::make_unique<Pager>(path);
+        impl->pager = std::make_unique<Pager>(path);
 
         FileHeader header;
 
@@ -48,7 +48,7 @@ namespace vectordb
         {
             impl->header = FileHeader::create();
             auto buffer = impl->header.serialise();
-            pager->write_page(0, buffer);
+            impl->pager->write_page(0, buffer);
         }
         else
         {
