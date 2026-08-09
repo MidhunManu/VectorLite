@@ -7,7 +7,9 @@ int main(int argc, char const *argv[])
     if (argc < 2)
     {
         std::fprintf(stderr, "usage: %s <database-file>\n", argv[0]);
+
         return 1;
+
     }
 
     try
