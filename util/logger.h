@@ -1,43 +1,72 @@
+#pragma once
+#include <chrono>
 #include <format>
-#include <iostream>
+#include <fstream>
+#include <print>
+#include <string>
+#include <string_view>
+#include <utility>
 
-
-class LOG
-{
+class LOG {
 public:
-    enum class LOG_LEVEL { DEF, LOW, MID, HIGH, SYS };
+  enum class LOG_LEVEL : std::uint8_t { DEF, LOW, MID, HIGH, SYS };
 
 private:
-    std::string message;
+  std::string m_buffer;
+  std::ofstream m_logFile;
 
-    std::string_view level_to_string(LOG_LEVEL level)
-    {
-        switch (level)
-        {
-            case LOG_LEVEL::DEF:  return "DEF";
-            case LOG_LEVEL::LOW:  return "LOW";
-            case LOG_LEVEL::MID:  return "MID";
-            case LOG_LEVEL::HIGH: return "HIGH";
-            case LOG_LEVEL::SYS:  return "SYS";
-        }
-        return "UNKNOWN";
+  static constexpr std::string_view level_to_string(LOG_LEVEL level) noexcept {
+    switch (level) {
+    case LOG_LEVEL::DEF:
+      return "DEF";
+    case LOG_LEVEL::LOW:
+      return "LOW";
+    case LOG_LEVEL::MID:
+      return "MID";
+    case LOG_LEVEL::HIGH:
+      return "HIGH";
+    case LOG_LEVEL::SYS:
+      return "SYS";
     }
+    return "UNKNOWN";
+  }
 
 public:
-    LOG()
-    {
-        std::cout << "LOGGER: Initialized.\n";
+  LOG() : m_logFile("log.txt", std::ios::app) {
+    m_buffer.reserve(256);
+    std::println("LOGGER: Initialized.");
+    if (m_logFile.is_open()) {
+      std::println(m_logFile, "\n|==========> Logger Started <==========|");
+      m_logFile.flush();
     }
+  }
 
-    template <typename... Args>
-    void log(LOG_LEVEL level, std::format_string<Args...> fmt, Args&&... args)
-    {
-        message = std::format(fmt, std::forward<Args>(args)...);
-        std::cout << std::format("[{}] {}\n", level_to_string(level), message);
+  ~LOG() {
+    if (m_logFile.is_open())
+      std::println(m_logFile, "|==========> Logger Closed <===========|");
+  }
+
+  LOG(const LOG &) = delete;
+  LOG &operator=(const LOG &) = delete;
+  LOG(LOG &&) = delete;
+  LOG &operator=(LOG &&) = delete;
+
+  template <typename... Args>
+  void log(LOG_LEVEL level, std::format_string<Args...> fmt, Args &&...args) {
+    auto ts = std::chrono::floor<std::chrono::milliseconds>(
+        std::chrono::system_clock::now());
+
+    m_buffer.clear();
+    std::format_to(std::back_inserter(m_buffer), "[{:%Y-%m-%d %H:%M:%S}] [{}] ",
+                   ts, level_to_string(level));
+    std::format_to(std::back_inserter(m_buffer), fmt,
+                   std::forward<Args>(args)...);
+
+    std::println("{}", m_buffer);
+
+    if (m_logFile.is_open()) {
+      std::println(m_logFile, "{}", m_buffer);
+      m_logFile.flush();
     }
+  }
 };
-
-
-// todo:
-// 1 -> time formating
-// 2 -> CPU USAGE
