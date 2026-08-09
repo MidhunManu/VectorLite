@@ -7,7 +7,7 @@ namespace vectordb
 	enum class ColumnType: uint8_t
 	{
 		Int32 	= 0,
-		Int65 	= 1,
+		Int64 	= 1,
 		Float32 = 2,
 		Float64 = 3,
 		String 	= 4,
