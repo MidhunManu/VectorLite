@@ -31,7 +31,22 @@ private:
     return "UNKNOWN";
   }
 
-public:
+  LOG(const LOG &) = delete;
+  LOG &operator=(const LOG &) = delete;
+  LOG(LOG &&) = delete;
+  LOG &operator=(LOG &&) = delete;
+
+  static LOG &get() {
+    static LOG instance;
+    return instance;
+  }
+
+  ~LOG() {
+    if (m_logFile.is_open())
+      std::println(m_logFile, "|==========> Logger Closed <===========|");
+  }
+
+private:
   LOG() : m_logFile("log.txt", std::ios::app) {
     m_buffer.reserve(256);
     std::println("LOGGER: Initialized.");
@@ -41,16 +56,7 @@ public:
     }
   }
 
-  ~LOG() {
-    if (m_logFile.is_open())
-      std::println(m_logFile, "|==========> Logger Closed <===========|");
-  }
-
-  LOG(const LOG &) = delete;
-  LOG &operator=(const LOG &) = delete;
-  LOG(LOG &&) = delete;
-  LOG &operator=(LOG &&) = delete;
-
+public:
   template <typename... Args>
   void log(LOG_LEVEL level, std::format_string<Args...> fmt, Args &&...args) {
     auto ts = std::chrono::floor<std::chrono::milliseconds>(
@@ -70,3 +76,9 @@ public:
     }
   }
 };
+
+/// usage
+
+/*
+LOG::get().log(LOG::LOG_LEVEL::SYS, "Hello, {}!", "World");
+*/
