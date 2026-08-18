@@ -138,6 +138,11 @@ namespace vectordb
         return static_cast<size_t>(free_end - free_start);
     }
 
+    size_t SlottedPage::max_record_size()
+    {
+        return PAGE_SIZE - HEADER_SIZE - SLOT_SIZE;
+    }
+
     std::optional<uint16_t> SlottedPage::insert_record(
         std::vector<char>& buffer, const std::vector<char>& record)
     {
