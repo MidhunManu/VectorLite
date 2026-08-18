@@ -17,6 +17,8 @@ add_library(vectordb
     src/storage/file_header.cpp
     src/storage/pager.cpp
     src/catalog/catalog.cpp
+    src/storage/buffer_manager.cpp
+    src/storage/slotted_page.cpp
 )
 
 add_library(vectordb::vectordb ALIAS vectordb)
@@ -63,6 +65,8 @@ FetchContent_MakeAvailable(googletest)
 add_executable(database_tests
     tests/database_open_test.cpp
     tests/file_header_test.cpp
+    tests/buffer_manager_test.cpp
+    tests/slotted_page_test.cpp
 )
 
 target_link_libraries(database_tests
@@ -71,7 +75,10 @@ target_link_libraries(database_tests
         GTest::gtest_main
 )
 
+target_include_directories(database_tests
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 include(GoogleTest)
-
 gtest_discover_tests(database_tests)
