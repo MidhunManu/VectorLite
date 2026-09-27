@@ -106,6 +106,12 @@ namespace vectordb
 		return it == m_collections.end() ? nullptr : &it->second;
 	}
 
+    CollectionDescriptor* Catalog::find_collection(const std::string& name)
+    {
+        auto it = m_collections.find(name);
+        return it == m_collections.end() ? nullptr : &it->second;
+    }
+
 	std::vector<char> Catalog::serialise() const
 	{
 		std::vector<char> buffer;
