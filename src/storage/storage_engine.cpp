@@ -32,6 +32,15 @@ namespace vectordb
     RecordId StorageEngine::insert_record(
         CollectionDescriptor& collection, const std::vector<char>& record_bytes)
     {
+        if (record_bytes.size() > SlottedPage::max_record_size())
+        {
+            throw std::runtime_error(
+                "record too large to fit in a single page (" +
+                std::to_string(record_bytes.size()) + " bytes, max " +
+                std::to_string(SlottedPage::max_record_size()) + " bytes) -- "
+                "records spanning multiple pages are not supported yet");
+        }
+
         if (collection.root_page == 0)
         {
             collection.root_page = allocate_page(PageType::Data);

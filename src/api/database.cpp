@@ -12,7 +12,7 @@ namespace vectordb
 {
     namespace
     {
-        constexpr size_t BUFFER_POOL_CAPACITY = 64; // pages; arbitrary MVP default, tune later
+        constexpr size_t BUFFER_POOL_CAPACITY = 64;
     }
 
     Database::Database(

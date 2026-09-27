@@ -2,7 +2,6 @@
 #include "vectordb/config.hpp"
 
 #include <cstring>
-#include <stdexcept>
 
 namespace vectordb
 {
@@ -206,7 +205,7 @@ namespace vectordb
 
         if (flags & TOMBSTONE_FLAG)
         {
-            return false;
+            return false; // already deleted
         }
 
         write_u8_at(buffer, slot_offset + 4, flags | TOMBSTONE_FLAG);
