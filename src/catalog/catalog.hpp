@@ -18,6 +18,7 @@ namespace vectordb
 				std::vector<ColumnRef> schema
 			);
 			const CollectionDescriptor* find_collection(const std::string& name) const;
+			CollectionDescriptor* find_collection(const std::string& name);
 			std::vector<char> serialise() const;
 			static Catalog deserialise(const std::vector<char>& buffer);
 			

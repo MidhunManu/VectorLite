@@ -100,7 +100,7 @@ namespace vectordb
 		return  it->second;
 	}
 
-	const CollectionDescriptor* Catalog::find_collection(const std::string& name) const
+	const CollectionDescriptor* Catalog::find_collection(const std::string& name)
 	{
 		auto it = m_collections.find(name);
 		return it == m_collections.end() ? nullptr : &it->second;
