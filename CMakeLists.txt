@@ -16,9 +16,11 @@ add_library(vectordb
     src/api/database.cpp
     src/storage/file_header.cpp
     src/storage/pager.cpp
-    src/catalog/catalog.cpp
     src/storage/buffer_manager.cpp
     src/storage/slotted_page.cpp
+    src/storage/record.cpp
+    src/storage/storage_engine.cpp
+    src/catalog/catalog.cpp
 )
 
 add_library(vectordb::vectordb ALIAS vectordb)
@@ -26,8 +28,6 @@ add_library(vectordb::vectordb ALIAS vectordb)
 target_include_directories(vectordb
     PUBLIC
         include
-
-    PRIVATE
         src
 )
 
@@ -73,11 +73,6 @@ target_link_libraries(database_tests
     PRIVATE
         vectordb::vectordb
         GTest::gtest_main
-)
-
-target_include_directories(database_tests
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 include(GoogleTest)
