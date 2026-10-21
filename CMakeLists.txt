@@ -21,6 +21,11 @@ add_library(vectordb
     src/storage/record.cpp
     src/storage/storage_engine.cpp
     src/catalog/catalog.cpp
+    src/catalog/schema.cpp
+    src/query/lexer/lexer.cpp
+    src/query/lexer/token.cpp
+    src/query/parser/parser.cpp
+    src/query/semantic/analyzer.cpp
 )
 
 add_library(vectordb::vectordb ALIAS vectordb)
@@ -67,6 +72,7 @@ add_executable(database_tests
     tests/file_header_test.cpp
     tests/buffer_manager_test.cpp
     tests/slotted_page_test.cpp
+    tests/query_test.cpp
 )
 
 target_link_libraries(database_tests

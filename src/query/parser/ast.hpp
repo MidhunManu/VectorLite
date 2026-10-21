@@ -25,7 +25,7 @@ namespace vectordb
     // Deliberately separate from storage::Value -- keeps the Query layer
     using LiteralValue = std::variant<int64_t, double, std::string, bool>;
 
-    struct ColumnRef
+    struct ColumnName
     {
         std::string name;
     };
@@ -37,7 +37,7 @@ namespace vectordb
 
     struct Comparison
     {
-        ColumnRef column;
+        ColumnName column;
         ComparisonOp op;
         LiteralValue value;
     };

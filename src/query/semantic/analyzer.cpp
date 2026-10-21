@@ -18,7 +18,7 @@ namespace vectordb
         return *c;
     }
 
-    const ColumnDef& SemanticAnalyzer::require_column(
+    const ColumnRef& SemanticAnalyzer::require_column(
         const CollectionDescriptor& collection, const std::string& name) const
     {
         for (const auto& col : collection.schema)
@@ -28,7 +28,7 @@ namespace vectordb
         throw QueryError("unknown column '" + name + "' in collection '" + collection.name + "'", 0);
     }
 
-    void SemanticAnalyzer::check_literal_type(const LiteralValue& value, const ColumnDef& column) const
+    void SemanticAnalyzer::check_literal_type(const LiteralValue& value, const ColumnRef& column) const
     {
         bool ok = false;
         switch (column.type)
@@ -62,7 +62,7 @@ namespace vectordb
     {
         for (const auto& cmp : cond.comparisons)
         {
-            const ColumnDef& col = require_column(collection, cmp.column.name);
+            const ColumnRef& col = require_column(collection, cmp.column.name);
             check_literal_type(cmp.value, col);
         }
     }
@@ -95,7 +95,7 @@ namespace vectordb
 
         for (size_t i = 0; i < stmt.columns.size(); ++i)
         {
-            const ColumnDef& col = require_column(collection, stmt.columns[i]);
+            const ColumnRef& col = require_column(collection, stmt.columns[i]);
             const ValueExpr& expr = stmt.values[i];
 
             if (std::holds_alternative<BindParam>(expr))
@@ -135,7 +135,7 @@ namespace vectordb
 
         if (stmt.order_by.has_value())
         {
-            const ColumnDef& col = require_column(collection, stmt.order_by->column);
+            const ColumnRef& col = require_column(collection, stmt.order_by->column);
             if (col.type != ColumnType::Vector)
             {
                 throw QueryError("VECTOR_DISTANCE requires a VECTOR column, '" + col.name + "' is not one", 0);
@@ -158,7 +158,7 @@ namespace vectordb
 
         for (const auto& assignment : stmt.assignments)
         {
-            const ColumnDef& col = require_column(collection, assignment.column);
+            const ColumnRef& col = require_column(collection, assignment.column);
 
             if (std::holds_alternative<BindParam>(assignment.value))
             {
