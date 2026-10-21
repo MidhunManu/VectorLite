@@ -23,7 +23,8 @@ namespace vectordb {
 		bool delete_record(const RecordId& id);
 		std::vector<std::pair<RecordId, std::vector<char>>> scan_collection(const CollectionDescriptor& collection);
 		uint32_t allocate_page(PageType type);
-
+		bool undelete_record(const RecordId& id);
+		
 	private:
 		BufferManager& m_buffer_manager;
 		Pager& m_pager;

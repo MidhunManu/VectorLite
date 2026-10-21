@@ -8,7 +8,7 @@
 
 namespace vectordb
 {
-    StorageEngine::StorageEngine(BufferManager& buffer_manager, Pager& pager, FileHeader& header)
+    StorageEngine::StorageEngine(BufferManager &buffer_manager, Pager &pager, FileHeader &header)
         : m_buffer_manager(buffer_manager), m_pager(pager), m_header(header)
     {
     }
@@ -21,7 +21,7 @@ namespace vectordb
         auto header_buffer = m_header.serialise();
         m_pager.write_page(0, header_buffer);
 
-        std::vector<char>& buffer = m_buffer_manager.new_page(new_id);
+        std::vector<char> &buffer = m_buffer_manager.new_page(new_id);
         SlottedPage::init(buffer, new_id, type);
         m_buffer_manager.unpin_page(new_id, true);
         m_buffer_manager.flush_page(new_id);
@@ -30,7 +30,7 @@ namespace vectordb
     }
 
     RecordId StorageEngine::insert_record(
-        CollectionDescriptor& collection, const std::vector<char>& record_bytes)
+        CollectionDescriptor &collection, const std::vector<char> &record_bytes)
     {
         if (record_bytes.size() > SlottedPage::max_record_size())
         {
@@ -38,7 +38,7 @@ namespace vectordb
                 "record too large to fit in a single page (" +
                 std::to_string(record_bytes.size()) + " bytes, max " +
                 std::to_string(SlottedPage::max_record_size()) + " bytes) -- "
-                "records spanning multiple pages are not supported yet");
+                                                                 "records spanning multiple pages are not supported yet");
         }
 
         if (collection.root_page == 0)
@@ -50,7 +50,7 @@ namespace vectordb
 
         while (true)
         {
-            std::vector<char>& buffer = m_buffer_manager.fetch_page(page_id);
+            std::vector<char> &buffer = m_buffer_manager.fetch_page(page_id);
 
             if (!SlottedPage::verify_checksum(buffer))
             {
@@ -83,9 +83,9 @@ namespace vectordb
         }
     }
 
-    std::optional<std::vector<char>> StorageEngine::read_record(const RecordId& id)
+    std::optional<std::vector<char>> StorageEngine::read_record(const RecordId &id)
     {
-        std::vector<char>& buffer = m_buffer_manager.fetch_page(id.page_id);
+        std::vector<char> &buffer = m_buffer_manager.fetch_page(id.page_id);
 
         if (!SlottedPage::verify_checksum(buffer))
         {
@@ -98,9 +98,9 @@ namespace vectordb
         return record;
     }
 
-    bool StorageEngine::delete_record(const RecordId& id)
+    bool StorageEngine::delete_record(const RecordId &id)
     {
-        std::vector<char>& buffer = m_buffer_manager.fetch_page(id.page_id);
+        std::vector<char> &buffer = m_buffer_manager.fetch_page(id.page_id);
 
         if (!SlottedPage::verify_checksum(buffer))
         {
@@ -118,14 +118,14 @@ namespace vectordb
     }
 
     std::vector<std::pair<RecordId, std::vector<char>>> StorageEngine::scan_collection(
-        const CollectionDescriptor& collection)
+        const CollectionDescriptor &collection)
     {
         std::vector<std::pair<RecordId, std::vector<char>>> results;
 
         uint32_t page_id = collection.root_page;
         while (page_id != 0)
         {
-            std::vector<char>& buffer = m_buffer_manager.fetch_page(page_id);
+            std::vector<char> &buffer = m_buffer_manager.fetch_page(page_id);
 
             if (!SlottedPage::verify_checksum(buffer))
             {
@@ -149,5 +149,20 @@ namespace vectordb
         }
 
         return results;
+    }
+
+    bool StorageEngine::undelete_record(const RecordId &id)
+    {
+        std::vector<char> &buffer = m_buffer_manager.fetch_page(id.page_id);
+
+        if (!SlottedPage::verify_checksum(buffer))
+        {
+            m_buffer_manager.unpin_page(id.page_id);
+            throw std::runtime_error("corrupt page (checksum mismatch): page " + std::to_string(id.page_id));
+        }
+
+        bool restored = SlottedPage::undelete_record(buffer, id.slot_id);
+        m_buffer_manager.unpin_page(id.page_id, restored);
+        return restored;
     }
 }

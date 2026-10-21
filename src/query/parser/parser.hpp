@@ -1,4 +1,8 @@
 #pragma once
+#include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <vector>
 #include "query/lexer/token.hpp"
 #include "query/parser/ast.hpp"
@@ -16,11 +20,12 @@ namespace vectordb
         size_t m_pos = 0;
         uint32_t m_next_param_index = 0;
 
-        const Token& peek(size_t ahead = 0) const;
-        const Token& advance();
+        const Token &peek(size_t ahead = 0) const;
+        const Token &advance();
         bool check(TokenType type) const;
-        const Token& expect(TokenType type, const std::string& context);
+        const Token &expect(TokenType type, const std::string &context);
 
+        Statement parse_statement_inner();
         CreateCollectionStmt parse_create_collection();
         ColumnDefNode parse_column_def();
         InsertStmt parse_insert();

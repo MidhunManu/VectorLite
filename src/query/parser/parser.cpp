@@ -32,7 +32,19 @@ namespace vectordb
         return advance();
     }
 
+    // Public entry: parse one statement, then require end of input.
     Statement Parser::parse_statement()
+    {
+        Statement stmt = parse_statement_inner();
+        if (!check(TokenType::Eof))
+        {
+            throw QueryError(std::string("unexpected ") + token_type_name(peek().type) +
+                             " after end of statement", peek().offset);
+        }
+        return stmt;
+    }
+
+    Statement Parser::parse_statement_inner()
     {
         switch (peek().type)
         {

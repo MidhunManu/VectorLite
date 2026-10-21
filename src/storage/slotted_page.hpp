@@ -39,6 +39,8 @@ namespace vectordb
         static size_t free_space(const std::vector<char>& buffer);
 
         static size_t max_record_size();
+        
+        static bool undelete_record(std::vector<char>& buffer, uint16_t slot_id);
 
     private:
         static constexpr size_t HEADER_SIZE = 19;

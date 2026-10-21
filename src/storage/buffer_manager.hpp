@@ -18,6 +18,7 @@ namespace vectordb
         void mark_dirty(uint32_t page_id);
         void flush_page(uint32_t page_id);
         void flush_all();
+        void set_no_steal(bool enabled) { m_no_steal = enabled; };
 
     private:
         struct Frame
@@ -33,7 +34,8 @@ namespace vectordb
 
         Pager& m_pager;
         size_t m_capacity;
-        uint64_t m_clock;
+        uint64_t m_clock = 0;
         std::unordered_map<uint32_t, Frame> m_frames;
+        bool m_no_steal = false;
     };
 }
