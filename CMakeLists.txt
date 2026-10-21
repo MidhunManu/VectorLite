@@ -14,18 +14,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(vectordb
     src/api/database.cpp
-    src/storage/file_header.cpp
-    src/storage/pager.cpp
-    src/storage/buffer_manager.cpp
-    src/storage/slotted_page.cpp
-    src/storage/record.cpp
-    src/storage/storage_engine.cpp
+    src/api/transaction.cpp
     src/catalog/catalog.cpp
     src/catalog/schema.cpp
+    src/exec/eval.cpp
+    src/exec/executor.cpp
+    src/exec/read_ops.cpp
+    src/exec/write_ops.cpp
     src/query/lexer/lexer.cpp
     src/query/lexer/token.cpp
     src/query/parser/parser.cpp
+    src/query/planner/planner.cpp
     src/query/semantic/analyzer.cpp
+    src/storage/buffer_manager.cpp
+    src/storage/file_header.cpp
+    src/storage/pager.cpp
+    src/storage/record.cpp
+    src/storage/slotted_page.cpp
+    src/storage/storage_engine.cpp
+    src/wal/wal_writer.cpp
 )
 
 add_library(vectordb::vectordb ALIAS vectordb)

@@ -3,12 +3,13 @@
 
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 namespace vectordb
 {
-    BufferManager::BufferManager(Pager& pager, size_t capacity)
-    : m_pager(pager),
-      m_capacity(capacity)
+    BufferManager::BufferManager(Pager &pager, size_t capacity)
+        : m_pager(pager),
+          m_capacity(capacity)
     {
         if (capacity == 0)
         {
@@ -16,7 +17,7 @@ namespace vectordb
         }
     }
 
-    BufferManager::Frame& BufferManager::get_or_load(uint32_t page_id, bool from_disk)
+    BufferManager::Frame &BufferManager::get_or_load(uint32_t page_id, bool from_disk)
     {
         auto it = m_frames.find(page_id);
         if (it != m_frames.end())
@@ -45,12 +46,12 @@ namespace vectordb
         return inserted_it->second;
     }
 
-    std::vector<char>& BufferManager::fetch_page(uint32_t page_id)
+    std::vector<char> &BufferManager::fetch_page(uint32_t page_id)
     {
         return get_or_load(page_id, true).data;
     }
 
-    std::vector<char>& BufferManager::new_page(uint32_t page_id)
+    std::vector<char> &BufferManager::new_page(uint32_t page_id)
     {
         return get_or_load(page_id, false).data;
     }
@@ -60,20 +61,16 @@ namespace vectordb
         auto it = m_frames.find(page_id);
         if (it == m_frames.end())
         {
-            throw std::runtime_error("unpin page: page not found in buffer pool");
+            throw std::runtime_error("unpin_page: page not in buffer pool");
         }
-
+        if (it->second.pin_count == 0)
+        {
+            throw std::runtime_error("unpin_page: page " + std::to_string(page_id) + " is not pinned");
+        }
         if (mark_dirty_flag)
-        {
             it->second.dirty = true;
-        }
-
-        if (it->second.pin_count > 0)
-        {
-            it->second.pin_count--;
-        }
+        it->second.pin_count--;
     }
-
     void BufferManager::flush_page(uint32_t page_id)
     {
         auto it = m_frames.find(page_id);
@@ -91,7 +88,7 @@ namespace vectordb
 
     void BufferManager::flush_all()
     {
-        for(auto& [page_id, frame]: m_frames)
+        for (auto &[page_id, frame] : m_frames)
         {
             if (frame.dirty)
             {
@@ -104,12 +101,16 @@ namespace vectordb
     void BufferManager::evict_one()
     {
         uint32_t page_eviction_id = 0;
-        bool found = 0;
+        bool found = false;
         uint64_t oldest = std::numeric_limits<uint64_t>::max();
 
-        for (auto& [page_id, frame]: m_frames)
+        for (auto &[page_id, frame] : m_frames)
         {
-            if (frame.pin_count == 0 && frame.last_used < oldest)
+            if (frame.pin_count != 0)
+                continue;
+            if (m_no_steal && frame.dirty)
+                continue; // never evict dirty pages
+            if (frame.last_used < oldest)
             {
                 oldest = frame.last_used;
                 page_eviction_id = page_id;
@@ -119,7 +120,7 @@ namespace vectordb
 
         if (!found)
         {
-            throw std::runtime_error("buffer pool eviction: all pages are pinned");
+            throw std::runtime_error("buffer pool eviction: no evictable page (all pinned or dirty)");
         }
 
         auto it = m_frames.find(page_eviction_id);
@@ -127,6 +128,6 @@ namespace vectordb
         {
             m_pager.write_page(page_eviction_id, it->second.data);
         }
-        m_frames.erase(page_eviction_id);
+        m_frames.erase(it);
     }
 }
