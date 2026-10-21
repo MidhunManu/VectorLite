@@ -2,6 +2,9 @@
 
 #include <cstdint>
 #include <string>
+#include <optional>
+#include <string_view>
+
 namespace vectordb
 {
 	enum class ColumnType: uint8_t
@@ -22,4 +25,6 @@ namespace vectordb
 		uint32_t vector_dim = 0; // only to be used if ColumnType is a Vector
 		bool nullable = false;
 	};
+
+	std::optional<ColumnType> parse_column_type(std::string_view name);
 }
