@@ -47,7 +47,7 @@ namespace vectordb {
 
 	struct Token
 	{
-		TokenType tokenType;
+		TokenType type;
 		std::string_view lexeme;
 		size_t offset;
 	};
